@@ -17,33 +17,35 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.swerve.SwerveDrive;
 import frc.robot.swerve.SwerveWheel;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class SwerveDrivetrain extends SubsystemBase {
 
     //Swerve Modules
 
     private CANCoder frontRightEncoder = new CANCoder(Constants.DriveSubsystem.kFrontRightEncoderID);
-    private TalonFX frontRightTwistMotor = new TalonFX(Constants.DriveSubsystem.kFrontRightTwistMotorCanID);
+    private CANSparkMax frontRightTwistMotor = new CANSparkMax(Constants.DriveSubsystem.kFrontRightTwistMotorCanID, MotorType.kBrushless);
     private PIDController frontRightTwistController = new PIDController(Constants.DriveSubsystem.kSwerveTwistPID_P, 0.0, 0.0);
-    private TalonFX frontRightDriveMotor = new TalonFX(Constants.DriveSubsystem.kFrontRightDriveMotorCanID);
+    private CANSparkMax frontRightDriveMotor = new CANSparkMax(Constants.DriveSubsystem.kFrontRightDriveMotorCanID, MotorType.kBrushless);
     private SwerveWheel frontRightWheel = new SwerveWheel(frontRightTwistController, frontRightEncoder, frontRightTwistMotor, frontRightDriveMotor, Constants.DriveSubsystem.kFrontRightEncoderOffset, "FrontRight");
 
     private CANCoder frontLeftEncoder = new CANCoder(Constants.DriveSubsystem.kFrontLeftEncoderID);
-    private TalonFX frontLeftTwistMotor = new TalonFX(Constants.DriveSubsystem.kFrontLeftTwistMotorCanID);
+    private CANSparkMax frontLeftTwistMotor = new CANSparkMax(Constants.DriveSubsystem.kFrontLeftTwistMotorCanID,MotorType.kBrushless);
     private PIDController frontLeftTwistController = new PIDController(Constants.DriveSubsystem.kSwerveTwistPID_P, 0.0, 0.0);
-    private TalonFX frontLeftDriveMotor = new TalonFX(Constants.DriveSubsystem.kFrontLeftDriveMotorCanID);
+    private CANSparkMax frontLeftDriveMotor = new CANSparkMax(Constants.DriveSubsystem.kFrontLeftDriveMotorCanID, MotorType.kBrushless);
     private SwerveWheel frontLeftWheel = new SwerveWheel(frontLeftTwistController, frontLeftEncoder, frontLeftTwistMotor, frontLeftDriveMotor,Constants.DriveSubsystem.kFrontLeftEncoderOffset, "FrontLeft");
 
     private CANCoder rearRightEncoder = new CANCoder(Constants.DriveSubsystem.kRearRightEncoderID);
-    private TalonFX rearRightTwistMotor = new TalonFX(Constants.DriveSubsystem.kRearRightTwistMotorCanID);
+    private CANSparkMax rearRightTwistMotor = new CANSparkMax(Constants.DriveSubsystem.kRearRightTwistMotorCanID, MotorType.kBrushless);
     private PIDController rearRightTwistController = new PIDController(Constants.DriveSubsystem.kSwerveTwistPID_P, 0.0, 0.0);
-    private TalonFX rearRightDriveMotor = new TalonFX(Constants.DriveSubsystem.kRearRightDriveMotorCanID);
+    private CANSparkMax rearRightDriveMotor = new CANSparkMax(Constants.DriveSubsystem.kRearRightDriveMotorCanID, MotorType.kBrushless);
     private SwerveWheel rearRightWheel = new SwerveWheel(rearRightTwistController, rearRightEncoder, rearRightTwistMotor, rearRightDriveMotor, Constants.DriveSubsystem.kRearRightEncoderOffset, "RearRight");
 
     private CANCoder rearLeftEncoder = new CANCoder(Constants.DriveSubsystem.kRearLeftEncoderID);
-    private TalonFX rearLeftTwistMotor = new TalonFX(Constants.DriveSubsystem.kRearLeftTwistMotorCanID);
+    private CANSparkMax rearLeftTwistMotor = new CANSparkMax(Constants.DriveSubsystem.kRearLeftTwistMotorCanID, MotorType.kBrushless);
     private PIDController rearLeftTwistController = new PIDController(Constants.DriveSubsystem.kSwerveTwistPID_P, 0.0, 0.0);
-    private TalonFX rearLeftDriveMotor = new TalonFX(Constants.DriveSubsystem.kRearLeftDriveMotorCanID);
+    private CANSparkMax rearLeftDriveMotor = new CANSparkMax(Constants.DriveSubsystem.kRearLeftDriveMotorCanID, MotorType.kBrushless);
     private SwerveWheel rearLeftWheel = new SwerveWheel(rearLeftTwistController, rearLeftEncoder, rearLeftTwistMotor, rearLeftDriveMotor, Constants.DriveSubsystem.kRearLeftEncoderOffset, "RearLeft");
     
     //end swerve modules

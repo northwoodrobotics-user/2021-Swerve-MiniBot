@@ -7,17 +7,18 @@ import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.revrobotics.CANSparkMax;
 
 public class SwerveWheel {
     private PIDController rotationController;
     private CANCoder canCoder;
-    private TalonFX driveMotor;
-    private TalonFX twistMotor;
+    private CANSparkMax driveMotor;
+    private CANSparkMax twistMotor;
     private double offset;
     private boolean enabled = true;
     private String moduleID;
 
-    public SwerveWheel(PIDController rotationController, CANCoder canCoder, TalonFX twistMotor, TalonFX driveMotor, double offset, String moudleId) {
+    public SwerveWheel(PIDController rotationController, CANCoder canCoder, CANSparkMax twistMotor, CANSparkMax driveMotor, double offset, String moudleId) {
         System.out.println("wheel Initialized");
         this.canCoder = canCoder;
         this.rotationController = rotationController;
@@ -45,7 +46,7 @@ public class SwerveWheel {
      */
     public void updateSpeed(double newSpeed) {
         if(enabled) {
-            driveMotor.set(ControlMode.PercentOutput, newSpeed);
+            driveMotor.set(newSpeed);
         }
     }
 
@@ -55,7 +56,7 @@ public class SwerveWheel {
     public void updateRotation() {
 
         SmartDashboard.putNumber("Commanded Motor Speed " + this.moduleID, 0);
-        twistMotor.set(ControlMode.PercentOutput, 0);
+        twistMotor.set(0);
         return;
         // if (this.enabled) {
         //     twistMotor.set(rotationController.calculate(this.potentiometer.get(), this.currentAngle));
@@ -96,10 +97,10 @@ public class SwerveWheel {
             SmartDashboard.putNumber("Commanded Motor Speed " + this.moduleID, motorOutput);
             SmartDashboard.putNumber("Position Error " + this.moduleID, rotationController.getPositionError());
 
-            twistMotor.set(ControlMode.PercentOutput, motorOutput);
+            twistMotor.set(motorOutput);
         }
         else {
-            twistMotor.set(ControlMode.PercentOutput, 0); // Turn motor off if rotation is disabled.
+            twistMotor.set(0); // Turn motor off if rotation is disabled.
         }
         // Don't set the twist to 0 when disabled, just leave it set the way it is.
         // else {
