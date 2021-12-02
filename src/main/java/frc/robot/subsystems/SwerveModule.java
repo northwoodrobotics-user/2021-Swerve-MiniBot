@@ -13,13 +13,18 @@ import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
+import com.revrobotics.CANEncoder;
+
 
 import java.util.Map;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.ControlType;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANPIDController;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.controller.PIDController;
@@ -38,12 +43,13 @@ import edu.wpi.first.wpilibj.geometry.Rotation2d;
 
 public class SwerveModule {
   private final String moduleIdentifier;
-  private final TalonFX m_driveMotor;
-  private final TalonFX m_twistMotor;
+  private final CANSparkMax m_driveMotor;
+  private CANEncoder m_drivemotorencoder;
+  private final CANSparkMax m_twistMotor;
 
   // private boolean rotationEnabled = false;
 
-  private final TalonFXSensorCollection m_driveMotorSensors;
+  //private final TalonFXSensorCollection m_driveMotorSensors;
   private final CANCoder m_twistEncoder;
 
   private double offset;
@@ -63,10 +69,13 @@ public class SwerveModule {
 
 
 
-  private final PIDController m_drivePIDController =
+  /*private final PIDController m_drivePIDController =
       new PIDController(Constants.DriveSubsystem.kSwerveDrivePID_P, 
                         Constants.DriveSubsystem.kSwerveDrivePID_I,
-                        Constants.DriveSubsystem.kSwerveDrivePID_D);
+                        Constants.DriveSubsystem.kSwerveDrivePID_D); */
+    private CANPIDController m_drivepidController;
+
+
 
   //Using a TrapezoidProfile PIDController to allow for smooth turning
   private final PIDController m_twistPIDController
@@ -137,24 +146,40 @@ public class SwerveModule {
     .withProperties(Map.of("min", -1, "max", 1))
     .getEntry();
 
-    m_driveMotor = new TalonFX(driveMotorCanID);
-    m_twistMotor = new TalonFX(twistMotorCanID);
+    m_driveMotor = new CANSparkMax(driveMotorCanID, MotorType.kBrushless);
+    m_twistMotor = new CANSparkMax(twistMotorCanID, MotorType.kBrushless);
     m_twistEncoder = new CANCoder(twistEncoderID);
     this.offset = offset;
     this.moduleIdentifier = moduleIdentifier;
+    m_driveMotor.restoreFactoryDefaults();
+    m_drivepidController = m_driveMotor.getPIDController();
 
-    this.m_driveMotorSensors = m_driveMotor.getSensorCollection(); //new Encoder(driveEncoderPorts[0], driveEncoderPorts[1]);
+    m_drivemotorencoder = m_driveMotor.getEncoder();
 
-    m_driveMotor.configPeakOutputForward(1);
-    m_driveMotor.configPeakOutputReverse(-1);
-    m_driveMotor.config_kP(0, Constants.DriveSubsystem.kSwerveDrivePID_P);
-    m_driveMotor.config_kI(0, Constants.DriveSubsystem.kSwerveDrivePID_I);
-    m_driveMotor.config_kD(0, Constants.DriveSubsystem.kSwerveDrivePID_D);
-    m_driveMotor.config_kF(0, Constants.DriveSubsystem.kSwerveDrivePID_F);
+
+
+    m_drivepidController.setP(Constants.DriveSubsystem.kSwerveDrivePID_P);
+    m_drivepidController.setI(Constants.DriveSubsystem.kSwerveDrivePID_I);
+    m_drivepidController.setD( Constants.DriveSubsystem.kSwerveDrivePID_D);
+    m_drivepidController.setFF(Constants.DriveSubsystem.kSwerveDrivePID_F);
+    m_drivepidController.setOutputRange(1, -1);
+
+
+
+    //this.m_driveMotorSensors = m_driveMotor.getSensorCollection(); //new Encoder(driveEncoderPorts[0], driveEncoderPorts[1]);
+
+   // m_driveMotor.configPeakOutputForward(1);
+  //  m_driveMotor.configPeakOutputReverse(-1);
+    //m_driveMotor.config_kP(0, Constants.DriveSubsystem.kSwerveDrivePID_P);
+   // m_driveMotor.config_kI(0, Constants.DriveSubsystem.kSwerveDrivePID_I);
+    //m_driveMotor.config_kD(0, Constants.DriveSubsystem.kSwerveDrivePID_D);
+    //m_driveMotor.config_kF(0, Constants.DriveSubsystem.kSwerveDrivePID_F);*/
     // m_driveMotor.configAllowableClosedloopError(0, 0);
     // m_driveMotor.configMaxIntegralAccumulator(0, maxIntegralAccumulator);
     // m_driveMotor.configClosedLoopPeriod(0, PIDLoopRate);
     TalonFXConfiguration angleTalonFXConfiguration = new TalonFXConfiguration();
+
+
 
                         
     //angleTalonFXConfiguration.remoteFilter0.remoteSensorDeviceID = m_twistEncoder.getDeviceID();
@@ -180,7 +205,7 @@ public class SwerveModule {
    */
   public SwerveModuleState getState() {
     return new SwerveModuleState(
-      convertTicksPerTimeUnitToMetersPerSecond(m_driveMotorSensors.getIntegratedSensorVelocity()), 
+      convertTicksPerTimeUnitToMetersPerSecond(m_drivemotorencoder.getVelocity()), 
       Rotation2d.fromDegrees(m_twistEncoder.getAbsolutePosition()));
   }
 
@@ -248,7 +273,7 @@ public class SwerveModule {
 
     
     sbSwerveModuleSpeedCommand.setDouble(state.speedMetersPerSecond);
-    sbSwerveModuleSpeedActual.setDouble(convertTicksPerTimeUnitToMetersPerSecond(m_driveMotorSensors.getIntegratedSensorVelocity()));
+    sbSwerveModuleSpeedActual.setDouble(convertTicksPerTimeUnitToMetersPerSecond(m_drivemotorencoder.getVelocity()));
 
         // Calculate the turning motor output from the turning PID controller.
     final var turnOutput = m_twistPIDController.calculate(
@@ -264,9 +289,10 @@ public class SwerveModule {
     double driveOutput = convertMetersPerSecondToTicksPerTimeUnit(state.speedMetersPerSecond);
 
     sbSwerveModuleSpeedRawCommand.setDouble(driveOutput);
-    sbSwerveModuleSpeedRawActual.setDouble(m_driveMotorSensors.getIntegratedSensorVelocity());
-    m_driveMotor.set(ControlMode.Velocity, driveOutput);
-    m_twistMotor.set(ControlMode.PercentOutput, turnOutput);
+    sbSwerveModuleSpeedRawActual.setDouble(m_drivemotorencoder.getVelocity());
+    m_drivepidController.setReference(driveOutput, ControlType.kVelocity);
+    //m_driveMotor.set(ControlMode.Velocity, driveOutput);
+    m_twistMotor.set(turnOutput);
   }
 
   private double convertTicksToMeters(double ticks){
