@@ -73,7 +73,7 @@ public class SwerveModule {
       new PIDController(Constants.DriveSubsystem.kSwerveDrivePID_P, 
                         Constants.DriveSubsystem.kSwerveDrivePID_I,
                         Constants.DriveSubsystem.kSwerveDrivePID_D); */
-    private CANPIDController m_drivepidController;
+    private final CANPIDController m_drivepidController;
 
 
 
